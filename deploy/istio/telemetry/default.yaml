@@ -1,0 +1,21 @@
+apiVersion: telemetry.istio.io/v1
+kind: Telemetry
+metadata:
+  name: meshops-default
+  namespace: meshops
+spec:
+  tracing:
+    - providers:
+        - name: meshops-otel
+      randomSamplingPercentage: 100.0
+      customTags:
+        request_id:
+          header:
+            name: x-request-id
+            defaultValue: unknown
+  metrics:
+    - providers:
+        - name: prometheus
+  accessLogging:
+    - providers:
+        - name: envoy

@@ -1,0 +1,12 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: orders-pod-failure
+  namespace: meshops
+  labels: { app.kubernetes.io/component: chaos-experiment }
+spec:
+  action: pod-kill
+  mode: one
+  selector:
+    namespaces: [meshops]
+    labelSelectors: { app.kubernetes.io/name: orders }

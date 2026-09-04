@@ -1,0 +1,20 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: payment-network-delay
+  namespace: meshops
+  labels: { app.kubernetes.io/component: chaos-experiment }
+spec:
+  action: delay
+  mode: all
+  selector:
+    namespaces: [meshops]
+    labelSelectors: { app.kubernetes.io/name: orders }
+  direction: to
+  target:
+    mode: all
+    selector:
+      namespaces: [meshops]
+      labelSelectors: { app.kubernetes.io/name: payments }
+  delay: { latency: 300ms, correlation: "50", jitter: 80ms }
+  duration: 30s

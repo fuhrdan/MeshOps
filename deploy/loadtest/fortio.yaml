@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: meshops-resilience-
+  namespace: meshops
+  labels: { app.kubernetes.io/component: resilience-test }
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata: { labels: { app.kubernetes.io/component: resilience-test } }
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: fortio
+          image: fortio/fortio:1.69.4
+          args: ["load", "-qps", "40", "-t", "60s", "-c", "8", "-json", "-", "http://api-gateway:8080/api/checkout"]
+          resources:
+            requests: { cpu: 50m, memory: 32Mi }
+            limits: { cpu: 500m, memory: 128Mi }

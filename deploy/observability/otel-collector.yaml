@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: meshops
+data:
+  collector.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc: { endpoint: 0.0.0.0:4317 }
+          http: { endpoint: 0.0.0.0:4318 }
+    processors:
+      memory_limiter: { check_interval: 1s, limit_mib: 180 }
+      batch: { timeout: 2s, send_batch_size: 512 }
+      resource:
+        attributes:
+          - { key: deployment.environment, value: demo-production, action: upsert }
+    exporters:
+      otlp/tempo:
+        endpoint: tempo.meshops.svc.cluster.local:4317
+        tls: { insecure: true }
+      debug: { verbosity: basic }
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, resource, batch]
+          exporters: [otlp/tempo, debug]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opentelemetry-collector
+  namespace: meshops
+  labels: { app: opentelemetry-collector, app.kubernetes.io/component: tracing }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: opentelemetry-collector } }
+  template:
+    metadata: { labels: { app: opentelemetry-collector } }
+    spec:
+      containers:
+        - name: collector
+          image: otel/opentelemetry-collector-contrib:0.136.0
+          args: ["--config=/conf/collector.yaml"]
+          ports: [{ name: otlp-grpc, containerPort: 4317 }, { name: otlp-http, containerPort: 4318 }]
+          volumeMounts: [{ name: config, mountPath: /conf }]
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits: { cpu: 300m, memory: 256Mi }
+      volumes:
+        - name: config
+          configMap: { name: otel-collector-config }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: opentelemetry-collector, namespace: meshops }
+spec:
+  selector: { app: opentelemetry-collector }
+  ports:
+    - { name: otlp-grpc, port: 4317, targetPort: otlp-grpc }
+    - { name: otlp-http, port: 4318, targetPort: otlp-http }

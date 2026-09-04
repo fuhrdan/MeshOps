@@ -1,0 +1,44 @@
+namespace: meshops
+replicaCount: 1
+services:
+  - name: api-gateway
+    image: ghcr.io/fuhrdan/meshops-api-gateway:0.4.0
+    replicas: 2
+    public: true
+    env:
+      AUTH_URL: http://auth:8080
+      CATALOG_URL: http://catalog:8080
+      SEARCH_URL: http://search:8080
+      ORDERS_URL: http://orders:8080
+  - name: auth
+    image: ghcr.io/fuhrdan/meshops-auth:0.4.0
+    replicas: 2
+  - name: catalog
+    image: ghcr.io/fuhrdan/meshops-catalog:0.4.0
+    replicas: 2
+  - name: search
+    image: ghcr.io/fuhrdan/meshops-search:0.4.0
+    replicas: 1
+  - name: orders
+    image: ghcr.io/fuhrdan/meshops-orders:0.4.0
+    replicas: 2
+    env:
+      INVENTORY_URL: http://inventory:8080
+      PAYMENTS_URL: http://payments:8080
+  - name: inventory
+    image: ghcr.io/fuhrdan/meshops-inventory:0.4.0
+    replicas: 2
+  - name: payments
+    image: ghcr.io/fuhrdan/meshops-payments:0.4.0
+    replicas: 2
+    env:
+      NOTIFICATIONS_URL: http://notifications:8080
+  - name: notifications
+    image: ghcr.io/fuhrdan/meshops-notifications:0.4.0
+    replicas: 1
+  - name: ops-telemetry
+    image: ghcr.io/fuhrdan/meshops-ops-telemetry:0.4.0
+    replicas: 1
+    env:
+      PROMETHEUS_URL: http://prometheus.meshops.svc.cluster.local:9090
+      CORS_ALLOWED_ORIGIN: "*"

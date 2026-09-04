@@ -1,0 +1,23 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: meshops-fault-auth-failure
+  namespace: meshops
+  labels:
+    app.kubernetes.io/part-of: meshops
+    app.kubernetes.io/component: incident-fault
+    meshops.dev/fault-id: auth-failure
+spec:
+  hosts:
+    - auth
+  http:
+    - fault:
+        abort:
+          percentage:
+            value: 55
+          httpStatus: 503
+      route:
+        - destination:
+            host: auth
+            port:
+              number: 8080

@@ -1,0 +1,14 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: search-cpu-stress
+  namespace: meshops
+  labels: { app.kubernetes.io/component: chaos-experiment }
+spec:
+  mode: one
+  selector:
+    namespaces: [meshops]
+    labelSelectors: { app.kubernetes.io/name: search }
+  stressors:
+    cpu: { workers: 2, load: 80 }
+  duration: 60s

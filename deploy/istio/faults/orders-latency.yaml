@@ -1,0 +1,23 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: meshops-fault-orders-latency
+  namespace: meshops
+  labels:
+    app.kubernetes.io/part-of: meshops
+    app.kubernetes.io/component: incident-fault
+    meshops.dev/fault-id: orders-latency
+spec:
+  hosts:
+    - orders
+  http:
+    - fault:
+        delay:
+          percentage:
+            value: 60
+          fixedDelay: 900ms
+      route:
+        - destination:
+            host: orders
+            port:
+              number: 8080

@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Browser console
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: bash scripts/validate-mesh.sh
+      - run: bash scripts/validate-incidents.sh
+      - run: bash scripts/validate-traffic.sh
+      - run: bash scripts/validate-canary.sh
+      - run: bash scripts/validate-tracing.sh
+      - run: bash scripts/validate-resilience.sh
+      - run: bash scripts/validate-security-chaos.sh
+      - run: bash scripts/validate-campaign.sh
+      - run: bash scripts/validate-tutorial.sh
+
+  services:
+    name: Polyglot services
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: bash scripts/validate-services.sh

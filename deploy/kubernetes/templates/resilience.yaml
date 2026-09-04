@@ -1,0 +1,37 @@
+{{- range $service := list "orders" "payments" "inventory" }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $service }}-availability
+  namespace: {{ $.Values.namespace }}
+  labels: { app.kubernetes.io/component: resilience-policy }
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $service }}
+{{- end }}
+{{- range $service := list "orders" "payments" }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $service }}-resilience
+  namespace: {{ $.Values.namespace }}
+  labels: { app.kubernetes.io/component: resilience-policy }
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: {{ $service }} }
+  minReplicas: 2
+  maxReplicas: 6
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies: [{ type: Percent, value: 100, periodSeconds: 30 }]
+    scaleDown: { stabilizationWindowSeconds: 300 }
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 65 }
+{{- end }}

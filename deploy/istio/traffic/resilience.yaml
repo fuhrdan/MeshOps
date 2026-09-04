@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: payments-resilience
+  namespace: meshops
+  labels:
+    app.kubernetes.io/component: traffic-policy
+spec:
+  hosts: [payments]
+  http:
+    - route:
+        - destination:
+            host: payments
+            port: { number: 8080 }
+      timeout: 750ms
+      retries:
+        attempts: 2
+        perTryTimeout: 250ms
+        retryOn: 5xx,reset,connect-failure

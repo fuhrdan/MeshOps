@@ -1,0 +1,42 @@
+name: meshops
+services:
+  api-gateway:
+    build: ./services/api-gateway
+    ports: ["8080:8080"]
+    environment:
+      AUTH_URL: http://auth:8080
+      CATALOG_URL: http://catalog:8080
+      SEARCH_URL: http://search:8080
+      ORDERS_URL: http://orders:8080
+    depends_on: [auth, catalog, search, orders]
+  auth:
+    build: ./services/auth
+  catalog:
+    build: ./services/catalog
+  search:
+    build: ./services/search
+  orders:
+    build: ./services/orders
+    environment:
+      INVENTORY_URL: http://inventory:8080
+      PAYMENTS_URL: http://payments:8080
+    depends_on: [inventory, payments]
+  inventory:
+    build: ./services/inventory
+  payments:
+    build: ./services/payments
+    environment:
+      NOTIFICATIONS_URL: http://notifications:8080
+    depends_on: [notifications]
+  notifications:
+    build: ./services/notifications
+  ops-telemetry:
+    build: ./services/ops-telemetry
+    ports: ["8081:8080"]
+    environment:
+      PROMETHEUS_URL: http://prometheus:9090
+    depends_on: [prometheus]
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    volumes:
+      - ./deploy/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro

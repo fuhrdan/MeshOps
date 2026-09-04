@@ -1,0 +1,23 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: meshops-fault-inventory-errors
+  namespace: meshops
+  labels:
+    app.kubernetes.io/part-of: meshops
+    app.kubernetes.io/component: incident-fault
+    meshops.dev/fault-id: inventory-errors
+spec:
+  hosts:
+    - inventory
+  http:
+    - fault:
+        abort:
+          percentage:
+            value: 45
+          httpStatus: 503
+      route:
+        - destination:
+            host: inventory
+            port:
+              number: 8080

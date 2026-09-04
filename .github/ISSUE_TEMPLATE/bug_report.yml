@@ -1,0 +1,32 @@
+name: Bug report
+description: Report behavior that does not match the documented release.
+title: "[Bug]: "
+labels: ["type/bug", "priority/normal"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [Browser console, Microservice, Kubernetes, Documentation]
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: What happened?
+      description: Include the service, route, request ID, and relevant log line when available.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      value: v1.0.0
+    validations:
+      required: true

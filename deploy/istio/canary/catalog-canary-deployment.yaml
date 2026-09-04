@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-canary
+  namespace: meshops
+  labels: { app: catalog, version: canary, app.kubernetes.io/component: canary }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: catalog, version: canary }
+  template:
+    metadata:
+      labels: { app: catalog, version: canary }
+    spec:
+      serviceAccountName: catalog
+      containers:
+        - name: catalog
+          image: meshops/catalog:canary
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080 }]
+          readinessProbe: { httpGet: { path: /health, port: 8080 }, periodSeconds: 5 }
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { cpu: 250m, memory: 192Mi }

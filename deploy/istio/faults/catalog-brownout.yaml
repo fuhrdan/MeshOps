@@ -1,0 +1,27 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: meshops-fault-catalog-brownout
+  namespace: meshops
+  labels:
+    app.kubernetes.io/part-of: meshops
+    app.kubernetes.io/component: incident-fault
+    meshops.dev/fault-id: catalog-brownout
+spec:
+  hosts:
+    - catalog
+  http:
+    - fault:
+        delay:
+          percentage:
+            value: 40
+          fixedDelay: 420ms
+        abort:
+          percentage:
+            value: 15
+          httpStatus: 503
+      route:
+        - destination:
+            host: catalog
+            port:
+              number: 8080

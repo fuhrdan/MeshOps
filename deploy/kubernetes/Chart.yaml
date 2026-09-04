@@ -1,0 +1,6 @@
+apiVersion: v2
+name: meshops
+description: The v1.0.1 MeshOps guided Incident Commander campaign and service mesh
+type: application
+version: 1.0.1
+appVersion: "1.0.1"

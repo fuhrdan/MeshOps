@@ -1,0 +1,59 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: payments-resilience-v08
+  namespace: meshops
+  labels: { app.kubernetes.io/component: resilience-policy }
+spec:
+  host: payments
+  trafficPolicy:
+    tls: { mode: ISTIO_MUTUAL }
+    connectionPool:
+      tcp: { maxConnections: 40, connectTimeout: 250ms }
+      http: { http1MaxPendingRequests: 25, http2MaxRequests: 50, maxRequestsPerConnection: 100 }
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 5s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: payments-resilience-v08
+  namespace: meshops
+  labels: { app.kubernetes.io/component: resilience-policy }
+spec:
+  hosts: [payments]
+  http:
+    - route: [{ destination: { host: payments, port: { number: 8080 } } }]
+      timeout: 750ms
+      retries: { attempts: 2, perTryTimeout: 250ms, retryOn: "5xx,reset,connect-failure" }
+---
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: inventory-resilience-v08
+  namespace: meshops
+  labels: { app.kubernetes.io/component: resilience-policy }
+spec:
+  host: inventory
+  trafficPolicy:
+    tls: { mode: ISTIO_MUTUAL }
+    connectionPool:
+      tcp: { maxConnections: 30 }
+      http: { http1MaxPendingRequests: 20, http2MaxRequests: 40 }
+    outlierDetection: { consecutive5xxErrors: 3, interval: 5s, baseEjectionTime: 30s, maxEjectionPercent: 50 }
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: inventory-resilience-v08
+  namespace: meshops
+  labels: { app.kubernetes.io/component: resilience-policy }
+spec:
+  hosts: [inventory]
+  http:
+    - route: [{ destination: { host: inventory, port: { number: 8080 } } }]
+      timeout: 500ms
+      retries: { attempts: 1, perTryTimeout: 250ms, retryOn: "5xx,reset,connect-failure" }

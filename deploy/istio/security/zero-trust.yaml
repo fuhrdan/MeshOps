@@ -1,0 +1,62 @@
+apiVersion: security.istio.io/v1
+kind: RequestAuthentication
+metadata:
+  name: gateway-jwt
+  namespace: meshops
+  labels: { app.kubernetes.io/component: zero-trust }
+spec:
+  selector:
+    matchLabels: { app.kubernetes.io/name: api-gateway }
+  jwtRules:
+    - issuer: https://identity.meshops.local
+      audiences: [meshops-checkout]
+      jwks: |
+        {"keys":[{"kty":"RSA","kid":"meshops-demo","use":"sig","alg":"RS256","n":"u9Q7JvYkSgVYl2bW7qjQe3oH8aYlH3cG4QzP0XvV5C9g7N4pQ2mW6jF1kR8sT3dL5bA9eU2hM7xK4wY6cP1gZ8nV3rQ5sD0tL7mF2hJ9kB4xC6wP8aE1yN3uR5gT7vX9zQ2cL4mH6sK8jF0dA1pB3eG5iM7oU9wY2rT4qE6nI8","e":"AQAB"}]}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: gateway-jwt-claims
+  namespace: meshops
+  labels: { app.kubernetes.io/component: zero-trust }
+spec:
+  selector:
+    matchLabels: { app.kubernetes.io/name: api-gateway }
+  action: ALLOW
+  rules:
+    - to:
+        - operation: { paths: ["/health"] }
+    - from:
+        - source: { requestPrincipals: ["https://identity.meshops.local/*"] }
+      to:
+        - operation: { paths: ["/api/*"] }
+      when:
+        - key: request.auth.claims[aud]
+          values: [meshops-checkout]
+        - key: request.auth.claims[roles]
+          values: [customer, admin]
+---
+apiVersion: networking.istio.io/v1
+kind: Sidecar
+metadata:
+  name: namespace-egress-boundary
+  namespace: meshops
+  labels: { app.kubernetes.io/component: zero-trust }
+spec:
+  egress:
+    - hosts:
+        - "./*"
+        - "istio-system/*"
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-unknown-principals
+  namespace: meshops
+  labels: { app.kubernetes.io/component: zero-trust }
+spec:
+  action: DENY
+  rules:
+    - from:
+        - source:
+            notNamespaces: [meshops, istio-system]

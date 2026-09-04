@@ -1,0 +1,25 @@
+name: Feature request
+description: Propose a change for a planned MeshOps milestone.
+title: "[Feature]: "
+labels: ["type/feature", "priority/normal"]
+body:
+  - type: input
+    id: milestone
+    attributes:
+      label: Target milestone
+      placeholder: v1.x - post-launch milestone
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Operational problem
+      description: What SRE or service-mesh lesson should this help demonstrate?
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true

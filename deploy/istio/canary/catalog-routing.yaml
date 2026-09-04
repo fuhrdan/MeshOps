@@ -1,0 +1,28 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: catalog-progressive
+  namespace: meshops
+  labels: { app.kubernetes.io/component: canary }
+spec:
+  host: catalog
+  subsets:
+    - name: stable
+      labels: { version: stable }
+    - name: canary
+      labels: { version: canary }
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: catalog-progressive
+  namespace: meshops
+  labels: { app.kubernetes.io/component: canary }
+spec:
+  hosts: [catalog]
+  http:
+    - route:
+        - destination: { host: catalog, subset: stable, port: { number: 8080 } }
+          weight: 95
+        - destination: { host: catalog, subset: canary, port: { number: 8080 } }
+          weight: 5

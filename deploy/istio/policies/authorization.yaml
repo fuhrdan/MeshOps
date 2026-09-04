@@ -1,0 +1,97 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: auth-from-gateway
+  namespace: meshops
+spec:
+  selector:
+    matchLabels: { app.kubernetes.io/name: auth }
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/meshops/sa/api-gateway"]
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: catalog-from-gateway
+  namespace: meshops
+spec:
+  selector:
+    matchLabels: { app.kubernetes.io/name: catalog }
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/meshops/sa/api-gateway"]
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: search-from-gateway
+  namespace: meshops
+spec:
+  selector:
+    matchLabels: { app.kubernetes.io/name: search }
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/meshops/sa/api-gateway"]
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: orders-from-gateway
+  namespace: meshops
+spec:
+  selector:
+    matchLabels: { app.kubernetes.io/name: orders }
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/meshops/sa/api-gateway"]
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: inventory-from-orders
+  namespace: meshops
+spec:
+  selector:
+    matchLabels: { app.kubernetes.io/name: inventory }
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/meshops/sa/orders"]
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: payments-from-orders
+  namespace: meshops
+spec:
+  selector:
+    matchLabels: { app.kubernetes.io/name: payments }
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/meshops/sa/orders"]
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: notifications-from-payments
+  namespace: meshops
+spec:
+  selector:
+    matchLabels: { app.kubernetes.io/name: notifications }
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/meshops/sa/payments"]

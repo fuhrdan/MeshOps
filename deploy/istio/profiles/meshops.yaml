@@ -1,0 +1,22 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: meshops-control-plane
+  namespace: istio-system
+spec:
+  profile: minimal
+  meshConfig:
+    accessLogFile: /dev/stdout
+    enableTracing: true
+    extensionProviders:
+      - name: meshops-otel
+        opentelemetry:
+          service: opentelemetry-collector.meshops.svc.cluster.local
+          port: 4317
+    defaultConfig:
+      holdApplicationUntilProxyStarts: true
+      tracing: {}
+  values:
+    global:
+      proxy:
+        autoInject: enabled
