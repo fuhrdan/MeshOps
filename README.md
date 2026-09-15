@@ -3,12 +3,37 @@
 **Service Mesh Incident Commander**
 
 [![Release](https://img.shields.io/badge/release-v1.0.1-b9f541)](CHANGELOG.md)
-[![CI](https://img.shields.io/badge/CI-build%20%2B%20test-42e8c5)](.github/workflows/ci.yml)
+[![CI](https://github.com/fuhrdan/MeshOps/actions/workflows/ci.yml/badge.svg)](https://github.com/fuhrdan/MeshOps/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-7ca6ff)](LICENSE)
 
 MeshOps is an interactive SRE simulator built around a real polyglot microservice system. Operate a continuous checkout stream, inspect Istio service-mesh health, investigate production symptoms, identify root causes, and recover from controlled failures.
 
 Version **1.0.1** adds a clean start screen and a six-step, Explain-Like-I'm-Five tutorial before the full Incident Commander campaign. New operators can learn the basic mental model in about 90 seconds, while experienced users can open the command console immediately.
+
+## Engineering Evidence
+
+MeshOps combines an interactive incident-training surface with a runnable service-mesh lab. The browser experience is deterministic and safe to explore, while the repository also contains the Kubernetes/Istio infrastructure, services, telemetry, fault profiles, and operational tooling used by the real mesh.
+
+| Area                       | Evidence                                                                                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **System architecture**    | [Architecture](docs/architecture.md) · [Service mesh](docs/service-mesh.md)                                                                                                                      |
+| **Design decisions**       | [Architecture Decision Records](docs/adr/) covering service boundaries, Istio security, incident twins, traffic engineering, progressive delivery, tracing, resilience, and zero-trust exercises |
+| **Incident engineering**   | [Incident engine](docs/incident-engine.md) · [Traffic engineering](docs/traffic-engineering.md)                                                                                                  |
+| **Distributed tracing**    | [OpenTelemetry tracing](docs/distributed-tracing.md) with service waterfalls and first-failing-span investigation                                                                                |
+| **Progressive delivery**   | [Canary Commander](docs/canary-commander.md) with staged traffic, guardrails, promotion, hold, and rollback                                                                                      |
+| **Resilience engineering** | [Resilience game days](docs/resilience-engineering.md) with bounded load testing and failure scenarios                                                                                           |
+| **Zero trust / chaos**     | [Security and chaos exercises](docs/zero-trust-chaos.md) covering identity, authorization, egress, segmentation, and bounded fault injection                                                     |
+| **Full SRE campaign**      | [Incident Commander campaign](docs/incident-commander-campaign.md) combining diagnosis, mitigation, tracing, resilience, identity containment, and after-action reporting                        |
+
+### Simulation Boundary
+
+MeshOps deliberately separates the **browser incident simulator** from the **real service-mesh lab**.
+
+The static browser build does not claim to be connected to a live Kubernetes cluster. It provides deterministic incident twins for safe investigation and training.
+
+The repository's real lab uses the polyglot services, Kubernetes, Istio, strict mTLS, workload identity, telemetry, traffic controls, and fault-injection tooling.
+
+That distinction keeps demonstrations reproducible without presenting simulated telemetry as production evidence.
 
 ## Take the quick tutorial
 
